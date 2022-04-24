@@ -70,9 +70,14 @@ class Blockchain {
                 block.previousBlockHash = self.chain[self.chain.length - 1].hash;
             }
             block.hash = SHA256(JSON.stringify(block)).toString();
-            self.chain.push(block);
-            self.height++;
-            resolve(true);
+            let chainValid = await this.validateChain();
+            if (chainValid) {
+                self.height++;
+                self.chain.push(block);
+                resolve(true);
+            } else {
+                reject("Blockchain invalid");
+            }
         });
     }
 
@@ -86,7 +91,7 @@ class Blockchain {
      */
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
-            resolve(`${address}:${new Date().getTime().toString().slice(0,-3)}:starRegistry`);
+            resolve(`${address}:${new Date().getTime().toString().slice(0, -3)}:starRegistry`);
         });
     }
 
@@ -112,7 +117,7 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             let currentTime = new Date().getTime().toString().slice(0, -3);
             let messageTime = parseInt(message.split(':')[1]);
-            if (currentTime <= messageTime + (5 * 60 * 1000)) {
+            if (currentTime <= messageTime + (5 * 60)) {
                 let signatureValid = bitcoinMessage.verify(message, address, signature);
                 if (signatureValid) {
                     let newBlock = new BlockClass.Block({owner: address, star: star});
@@ -228,4 +233,4 @@ class Blockchain {
 
 }
 
-module.exports.Blockchain = Blockchain;   
+module.exports.Blockchain = Blockchain;
