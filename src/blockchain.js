@@ -177,7 +177,8 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            let starz = self.chain.filter(b => address === b.getBData().owner);
+            let starz = self.chain.filter(b => address === b.getBData().owner)
+                .map(block => block.getBData().star);
             resolve(starz);
         });
     }
